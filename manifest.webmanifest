@@ -1,7 +1,7 @@
 {
-  "name": "SaladeMenu",
-  "short_name": "SaladeMenu",
-  "description": "80 salade-recepten met favorieten en boodschappenlijst",
+  "name": "WeekMenu",
+  "short_name": "WeekMenu",
+  "description": "160 recepten met favorieten en automatische boodschappenlijst",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

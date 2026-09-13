@@ -1,6 +1,6 @@
-const APP_VERSION="2.5";
-let recipes=[], selected=new Set(JSON.parse(localStorage.getItem("salademenuSelectedV25")||"[]"));
-let favorites=new Set(JSON.parse(localStorage.getItem("salademenuFavoritesV25")||"[]"));
+const APP_VERSION="2.7";
+let recipes=[], selected=new Set(JSON.parse(localStorage.getItem("weekmenuSelectedV27")||"[]"));
+let favorites=new Set(JSON.parse(localStorage.getItem("weekmenuFavoritesV27")||"[]"));
 let currentView="recipes", displayMode="grid";
 
 const $=s=>document.querySelector(s);
@@ -122,7 +122,7 @@ function isPantryIngredient(name){
   return PANTRY_PATTERNS.some(rx=>rx.test(String(name||"")));
 }
 
-const PHOTO_CACHE_KEY="salademenuPhotoCacheV25";
+const PHOTO_CACHE_KEY="weekmenuPhotoCacheV27";
 let photoCache={};
 try{photoCache=JSON.parse(localStorage.getItem(PHOTO_CACHE_KEY)||"{}")}catch(e){photoCache={};}
 async function fetchCommonsPhoto(r){
@@ -205,8 +205,8 @@ function openRecipe(id){
 function toggleSelected(id,on){on?selected.add(id):selected.delete(id);persist();renderAll();}
 function toggleFavorite(id){favorites.has(id)?favorites.delete(id):favorites.add(id);persist();}
 function persist(){
-  localStorage.setItem("salademenuSelectedV25",JSON.stringify([...selected]));
-  localStorage.setItem("salademenuFavoritesV25",JSON.stringify([...favorites]));
+  localStorage.setItem("weekmenuSelectedV27",JSON.stringify([...selected]));
+  localStorage.setItem("weekmenuFavoritesV27",JSON.stringify([...favorites]));
   updateSelectedCount();
 }
 function updateSelectedCount(){$("#selectedCount").textContent=selected.size;}

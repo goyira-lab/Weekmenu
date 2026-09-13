@@ -1,25 +1,23 @@
-# SaladeMenu v2.5 — 160 recepten
+# WeekMenu v2.7
 
-## Nieuw
-- 80 nieuwe traditionele avondgerechten toegevoegd.
-- Nieuwe gerechten staan als eerste; de 80 bestaande salades staan daarna.
-- Verdeling nieuwe recepten:
-  - 20 aardappels/groente/vlees-vis/stamppot
-  - 20 pasta
-  - 15 tortilla/Mexicaans
-  - 15 rijst/curry
-  - 10 ovenschotels
-- De bestaande saladefoto's blijven op GitHub in `assets/images/`.
-- Voor de nieuwe 80 gerechten haalt de site automatisch passende foto's van circa 1200 px breed op via de Wikimedia Commons API.
-- Fotokeuze wordt in de browser opgeslagen, zodat dezelfde foto bij volgende bezoeken direct terugkomt.
-- Basisvoorraad zoals peper, zout, olie en water blijft uit de boodschappenlijst.
-- Automatische PWA-updatecontrole blijft actief.
+Deze versie vervangt de 80 door ChatGPT samengestelde avondgerechten uit v2.5/v2.6.
 
-## GitHub-uploadlimiet
-Deze update bevat slechts de kernbestanden en iconen; er zijn geen 80 extra fotobestanden nodig.
-Daardoor blijft de update ruim onder de limiet van 100 bestanden per GitHub-webupload.
+## Inhoud
+- 80 geselecteerde receptideeën met titels afkomstig uit Albert Heijn Allerhande en Jumbo Recepten.
+- 40 titels uit Allerhande en 40 uit Jumbo.
+- Bij ieder nieuw gerecht staat de bronlink in de data.
+- De bereidingswijze in WeekMenu is bewust compact en in eigen woorden weergegeven.
+- De oorspronkelijke 80 salades blijven ongewijzigd en staan na de hoofdgerechten.
+- Boodschappenlijst, favorieten, filter en PWA-updatecontrole blijven actief.
 
-Upload de inhoud van de ZIP naar dezelfde repository en overschrijf de bestaande bestanden.
-Laat de bestaande map `assets/images/` staan voor de saladefoto's.
+## Foto's
+De foto's van Albert Heijn en Jumbo zijn niet herverdeeld. De 80 nieuwe gerechten hebben lokale representatieve gerechtfoto's in `assets/images/dinner-081.jpg` t/m `dinner-160.jpg`.
+Deze zijn in het pakket opgenomen zodat de PWA niet afhankelijk is van externe afbeeldingen.
 
-Versie: 2.5
+## GitHub limiet
+Het pakket bevat 92 bestanden in totaal:
+- 12 kern-/icoonbestanden
+- 80 nieuwe gerechtfoto's
+
+Dit blijft onder de GitHub-webuploadlimiet van 100 bestanden.
+De bestaande saladefoto's `recipe-001.jpg` t/m `recipe-080.jpg` laat je op GitHub staan.
