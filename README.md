@@ -1,17 +1,15 @@
-# WeekMenu v2.9 — passende gerechtfoto's
+# WeekMenu v3.0 — open recepten + vrije foto's
 
-Deze versie vervangt de fout gekoppelde generieke beelden van de 80 nieuwe hoofdgerechten.
+Deze versie vervangt alle 80 eerdere hoofdgerechten.
 
-- 80 hoofdgerechten blijven vooraan staan.
-- De oorspronkelijke 80 salades blijven daarna staan.
-- Voor ieder hoofdgerecht is opnieuw een lokaal beeld gekozen op basis van het type gerecht:
-  pasta/lasagne, wraps/taco's, rijst/curry, vis, ovenschotels enzovoort.
-- De foto's staan lokaal in `assets/images/dinner-081.jpg` t/m `dinner-160.jpg`.
-- De app heet overal **WeekMenu**.
-- De v2.5/v2.6-layout, favorieten, boodschappenlijst en PWA-updatecontrole blijven behouden.
-- De bestaande saladefoto's `recipe-001.jpg` t/m `recipe-080.jpg` hoef je niet opnieuw te uploaden.
+- 80 nieuwe hoofdgerechten, recepttekst speciaal voor WeekMenu geschreven.
+- De 80 nieuwe receptteksten zijn vrijgegeven onder CC0 1.0.
+- Geen recepten of foto's van Albert Heijn/Jumbo meer bij de hoofdgerechten.
+- Per hoofdgerecht staat een specifieke `imageSearch`-term.
+- De app zoekt daarmee op Wikimedia Commons naar een passende vrij gelicenseerde foto.
+- Bij het recept toont de app de Commons-bron, maker en licentie.
+- De 80 oorspronkelijke salades blijven ongewijzigd.
+- Boodschappenlijst, filters, favorieten en PWA blijven werken.
 
-## GitHub upload
-Deze ZIP bevat 92 bestanden in totaal, dus blijft onder de limiet van 100 bestanden per web-upload.
-Upload de volledige inhoud en kies vervangen/overschrijven voor bestaande bestanden.
-Laat de bestaande saladefoto's op GitHub staan.
+Let op: de hoofdgerechtfoto's worden bij de eerste keer openen online uit Wikimedia Commons opgehaald
+en daarna in de browsercache/localStorage onthouden.

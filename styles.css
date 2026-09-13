@@ -59,3 +59,7 @@ dialog{width:min(980px,94vw);max-height:92vh;border:0;border-radius:18px;padding
 .update-banner[hidden]{display:none}.update-banner button{border:0;border-radius:8px;background:#fff;color:#176f38;padding:9px 12px;font-weight:800;white-space:nowrap}
 
 .source-link{display:inline-flex;align-items:center;padding:6px 9px;border-radius:999px;background:#eef7f0;color:#176f38;text-decoration:none;font-weight:700;font-size:.82rem}.source-link:hover{text-decoration:underline}
+
+.photo-credit{margin:-4px 20px 0;font-size:12px;color:#667085;text-align:right}
+.photo-credit a{color:#157347;text-decoration:underline}
+.license-note{margin-top:14px;font-size:12px;color:#667085}

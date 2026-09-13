@@ -1,6 +1,6 @@
-const APP_VERSION="2.9";
-let recipes=[], selected=new Set(JSON.parse(localStorage.getItem("weekmenuSelectedV29")||"[]"));
-let favorites=new Set(JSON.parse(localStorage.getItem("weekmenuFavoritesV29")||"[]"));
+const APP_VERSION="3.0";
+let recipes=[], selected=new Set(JSON.parse(localStorage.getItem("weekmenuSelectedV30")||"[]"));
+let favorites=new Set(JSON.parse(localStorage.getItem("weekmenuFavoritesV30")||"[]"));
 let currentView="recipes", displayMode="grid";
 
 const $=s=>document.querySelector(s);
@@ -122,39 +122,67 @@ function isPantryIngredient(name){
   return PANTRY_PATTERNS.some(rx=>rx.test(String(name||"")));
 }
 
-const PHOTO_CACHE_KEY="weekmenuPhotoCacheV29";
+const PHOTO_CACHE_KEY="weekmenuPhotoCacheV30";
 let photoCache={};
 try{photoCache=JSON.parse(localStorage.getItem(PHOTO_CACHE_KEY)||"{}")}catch(e){photoCache={};}
 async function fetchCommonsPhoto(r){
   if(r.image) return {url:r.image};
   if(photoCache[r.id]) return photoCache[r.id];
-  const q=encodeURIComponent((r.imageSearch||r.title)+" food");
-  const api="https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=6&gsrsearch="+q+
+
+  const raw=(r.imageSearch||r.title).trim();
+  const q=encodeURIComponent('"'+raw+'"');
+  const api="https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=12&gsrsearch="+q+
     "&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1200&format=json&origin=*";
+
+  const clean=s=>String(s||"").replace(/<[^>]*>/g," ").toLowerCase();
+  const keywords=raw.toLowerCase().split(/[\s\-]+/).filter(x=>x.length>2 && !["with","and","met","the"].includes(x));
+
   try{
     const data=await fetch(api,{cache:"force-cache"}).then(x=>x.json());
     const pages=Object.values((data.query&&data.query.pages)||{});
-    const p=pages.find(x=>x.imageinfo&&x.imageinfo[0]&&x.imageinfo[0].thumburl);
-    if(!p) throw new Error("geen foto");
-    const ii=p.imageinfo[0], md=ii.extmetadata||{};
+    const candidates=pages.filter(x=>x.imageinfo&&x.imageinfo[0]&&x.imageinfo[0].thumburl).map(p=>{
+      const ii=p.imageinfo[0], md=ii.extmetadata||{};
+      const license=(md.LicenseShortName&&md.LicenseShortName.value)||"";
+      const hay=clean((p.title||"")+" "+((md.ImageDescription&&md.ImageDescription.value)||"")+" "+((md.ObjectName&&md.ObjectName.value)||""));
+      let score=0;
+      for(const k of keywords) if(hay.includes(k)) score+=3;
+      if(clean(p.title).includes(raw.toLowerCase())) score+=8;
+      // Wikimedia Commons hosts free content; keep a visible license value when available.
+      if(license) score+=1;
+      return {p,ii,md,license,score};
+    }).sort((a,b)=>b.score-a.score);
+    const c=candidates[0];
+    if(!c) throw new Error("geen passende Commons-foto");
     const result={
-      url:ii.thumburl,
-      source:ii.descriptionurl||"",
-      artist:(md.Artist&&md.Artist.value)||"",
-      license:(md.LicenseShortName&&md.LicenseShortName.value)||"Wikimedia Commons"
+      url:c.ii.thumburl,
+      source:c.ii.descriptionurl||"",
+      artist:(c.md.Artist&&c.md.Artist.value)||"",
+      license:c.license||"Wikimedia Commons",
+      title:(c.p.title||"").replace(/^File:/,"")
     };
     photoCache[r.id]=result;
     localStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(photoCache));
     return result;
   }catch(e){return null;}
 }
-async function resolveRecipeImage(r,img){
-  if(r.image){img.src=r.image;return;}
+async function resolveRecipeImage(r,img,creditEl=null){
+  if(r.image){
+    img.src=r.image;
+    if(creditEl) creditEl.textContent="";
+    return;
+  }
   const photo=await fetchCommonsPhoto(r);
   if(photo&&photo.url){
     img.src=photo.url;
-    img.dataset.credit=(photo.license||"Wikimedia Commons");
+    img.dataset.credit=photo.license||"Wikimedia Commons";
     img.dataset.source=photo.source||"";
+    if(creditEl){
+      const who=String(photo.artist||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim();
+      creditEl.innerHTML='Foto: <a href="'+esc(photo.source||"#")+'" target="_blank" rel="noopener">Wikimedia Commons</a>'
+        +(who?' · '+esc(who):'')+' · '+esc(photo.license||"vrije licentie");
+    }
+  }else if(creditEl){
+    creditEl.textContent="Geen passende Commons-foto gevonden.";
   }
 }
 function resolveVisibleImages(scope){
@@ -194,10 +222,10 @@ function renderFavorites(){
 }
 function openRecipe(id){
   const r=recipes.find(x=>x.id===id); if(!r)return;
-  $("#dialogImage").src=r.image||"assets/icons/icon-512.png"; $("#dialogImage").alt=r.title; resolveRecipeImage(r,$("#dialogImage")); $("#dialogTitle").textContent=r.title;
+  $("#dialogImage").src=r.image||"assets/icons/icon-512.png"; $("#dialogImage").alt=r.title; resolveRecipeImage(r,$("#dialogImage"),$("#dialogPhotoCredit")); $("#dialogTitle").textContent=r.title;
   $("#dialogServings").textContent=r.servings||""; $("#dialogVeg").innerHTML=r.vegetables.map(v=>`<span class="chip">${esc(v)}</span>`).join("");
   $("#dialogIngredients").innerHTML=r.ingredients.map(x=>`<li>${esc(x)}</li>`).join("");
-  $("#dialogSteps").innerHTML=r.steps.map(x=>`<li>${esc(x)}</li>`).join("");
+  $("#dialogSteps").innerHTML=r.steps.map(x=>`<li>${esc(x)}</li>`).join(""); $("#dialogRecipeLicense").textContent=r.recipeLicense?"Recepttekst: "+r.recipeLicense:"";
   const cb=$("#dialogSelect"); cb.dataset.id=id; cb.checked=selected.has(id);
   const fav=$("#dialogFavorite"); fav.dataset.id=id; fav.textContent=favorites.has(id)?"♥":"♡"; fav.classList.toggle("active",favorites.has(id));
   $("#recipeDialog").showModal();
@@ -205,8 +233,8 @@ function openRecipe(id){
 function toggleSelected(id,on){on?selected.add(id):selected.delete(id);persist();renderAll();}
 function toggleFavorite(id){favorites.has(id)?favorites.delete(id):favorites.add(id);persist();}
 function persist(){
-  localStorage.setItem("weekmenuSelectedV29",JSON.stringify([...selected]));
-  localStorage.setItem("weekmenuFavoritesV29",JSON.stringify([...favorites]));
+  localStorage.setItem("weekmenuSelectedV30",JSON.stringify([...selected]));
+  localStorage.setItem("weekmenuFavoritesV30",JSON.stringify([...favorites]));
   updateSelectedCount();
 }
 function updateSelectedCount(){$("#selectedCount").textContent=selected.size;}
