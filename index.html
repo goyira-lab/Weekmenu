@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#196c3a">
+  <title>Avondmenu · 120 recepten</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <h1>Avondmenu</h1>
+    <p>120 recepten · kies, bekijk en maak één boodschappenlijst</p>
+  </div>
+  <nav>
+    <button class="navbtn active" data-view="menu">Menu</button>
+    <button class="navbtn" data-view="shopping">Boodschappen <span id="selectedCount" class="badge">0</span></button>
+  </nav>
+</header>
+
+<main>
+  <section id="menuView">
+    <div class="controls card">
+      <label>Hoofdgroente
+        <select id="vegFilter"><option value="">Alle</option></select>
+      </label>
+      <label>Zoeken
+        <input id="searchInput" type="search" placeholder="Zoek een gerecht…">
+      </label>
+      <div class="resultcount"><strong id="resultCount">120</strong> recepten</div>
+    </div>
+    <div id="recipeGrid" class="grid"></div>
+  </section>
+
+  <section id="shoppingView" hidden>
+    <div class="shopping-head card">
+      <div>
+        <h2>Boodschappen</h2>
+        <p>Alleen ingrediënten van aangevinkte recepten; gelijke ingrediënten en eenheden worden opgeteld.</p>
+      </div>
+      <button id="clearSelected" class="secondary">Alles uitvinken</button>
+    </div>
+    <div id="shoppingEmpty" class="empty card">Vink eerst één of meer gerechten aan.</div>
+    <div id="shoppingList" class="shopping card" hidden></div>
+  </section>
+</main>
+
+<dialog id="recipeDialog">
+  <button class="close" aria-label="Sluiten">×</button>
+  <img id="dialogImage" alt="">
+  <div class="dialog-body">
+    <div class="dialog-title-row">
+      <div>
+        <div id="dialogVeg" class="chips"></div>
+        <h2 id="dialogTitle"></h2>
+        <p id="dialogServings"></p>
+      </div>
+      <label class="pick"><input id="dialogSelect" type="checkbox"> Selecteer</label>
+    </div>
+    <div class="recipe-cols">
+      <div>
+        <h3>Ingrediënten</h3>
+        <ul id="dialogIngredients"></ul>
+      </div>
+      <div>
+        <h3>Bereiding</h3>
+        <ol id="dialogSteps"></ol>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>

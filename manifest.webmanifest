@@ -1,0 +1,9 @@
+{
+  "name": "Avondmenu · 120 recepten",
+  "short_name": "Avondmenu",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f3",
+  "theme_color": "#196c3a",
+  "icons": []
+}
