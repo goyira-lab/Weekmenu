@@ -4,20 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#2f984d">
-  <meta name="description" content="SaladeMenu met 80 recepten, favorieten en automatische boodschappenlijst.">
-  <title>SaladeMenu · 80 recepten</title>
+  <meta name="description" content="SaladeMenu met 160 recepten, favorieten en automatische boodschappenlijst.">
+  <title>SaladeMenu · 160 recepten</title>
   <link rel="icon" type="image/png" href="assets/icons/favicon.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css?v=2.3">
+  <link rel="stylesheet" href="styles.css?v=2.5">
 </head>
 <body>
+<div id="updateBanner" class="update-banner" hidden>
+  <span>Nieuwe versie van SaladeMenu beschikbaar.</span>
+  <button id="updateNow">Nu vernieuwen</button>
+</div>
+
 <header class="site-header">
   <a class="brand" href="#" data-nav="recipes" aria-label="SaladeMenu">
     <img src="assets/icons/icon-192.png" alt="">
     <div>
       <div class="brand-name">Salade<span>Menu</span></div>
-      <div class="brand-sub">80 frisse salade recepten voor elke dag</div>
+      <div class="brand-sub">160 avondrecepten voor elke dag</div>
     </div>
   </a>
 
@@ -41,12 +46,12 @@
 
       <label class="filterbox">
         <span class="leaf">🍃</span>
-        <span class="filterlabel">Filter op hoofdgroente</span>
+        <span class="filterlabel">Filter op categorie / groente</span>
         <select id="vegFilter"><option value="">Alle groenten</option></select>
       </label>
 
       <div class="result-card">
-        <strong><span id="resultCount">80</span> recepten</strong>
+        <strong><span id="resultCount">160</span> recepten</strong>
         <small>Gevonden</small>
         <div class="viewbuttons">
           <button class="viewbtn active" id="gridBtn" title="Rasterweergave">▦</button>
@@ -109,9 +114,9 @@
   <section id="aboutView" hidden>
     <div class="about-panel">
       <img src="assets/icons/icon-192.png" alt="">
-      <h1>SaladeMenu <span class="version">v2.3</span></h1>
-      <p>80 salade-recepten met groentefilter, favorieten en automatische boodschappenlijst.</p>
-      <p>Deze versie gebruikt de bestaande receptfoto's uit <code>assets/images/</code> op GitHub. De foto's zitten daarom niet opnieuw in dit updatepakket.</p>
+      <h1>SaladeMenu <span class="version">v2.5</span></h1>
+      <p>160 avondrecepten: 80 traditionele hoofdgerechten en 80 salades, met filter, favorieten en boodschappenlijst.</p>
+      <p>De 80 bestaande saladefoto's blijven uit <code>assets/images/</code> komen. Voor de 80 nieuwe avondgerechten haalt de app automatisch passende hoge-resolutie foto's op via Wikimedia Commons.</p>
     </div>
   </section>
 </main>
@@ -138,6 +143,6 @@
   </div>
 </dialog>
 
-<script src="app.js?v=2.3"></script>
+<script src="app.js?v=2.5"></script>
 </body>
 </html>

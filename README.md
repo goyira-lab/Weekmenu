@@ -1,38 +1,25 @@
-# SaladeMenu v2.3 – layout-update
+# SaladeMenu v2.5 — 160 recepten
 
-Deze versie gebruikt de nieuwe dashboard-layout met:
-- brede header en navigatie;
-- zoekveld + hoofdgroentefilter;
-- receptenraster zoals in het gekozen ontwerp;
-- favorieten;
-- boodschappenlijst in de rechterzijbalk;
-- populaire groenten;
-- volledige boodschappenpagina;
-- Android/PWA ondersteuning.
+## Nieuw
+- 80 nieuwe traditionele avondgerechten toegevoegd.
+- Nieuwe gerechten staan als eerste; de 80 bestaande salades staan daarna.
+- Verdeling nieuwe recepten:
+  - 20 aardappels/groente/vlees-vis/stamppot
+  - 20 pasta
+  - 15 tortilla/Mexicaans
+  - 15 rijst/curry
+  - 10 ovenschotels
+- De bestaande saladefoto's blijven op GitHub in `assets/images/`.
+- Voor de nieuwe 80 gerechten haalt de site automatisch passende foto's van circa 1200 px breed op via de Wikimedia Commons API.
+- Fotokeuze wordt in de browser opgeslagen, zodat dezelfde foto bij volgende bezoeken direct terugkomt.
+- Basisvoorraad zoals peper, zout, olie en water blijft uit de boodschappenlijst.
+- Automatische PWA-updatecontrole blijft actief.
 
-## Belangrijk: receptfoto's zitten NIET in deze ZIP
-De site verwacht de bestaande afbeeldingen op GitHub op exact deze paden:
+## GitHub-uploadlimiet
+Deze update bevat slechts de kernbestanden en iconen; er zijn geen 80 extra fotobestanden nodig.
+Daardoor blijft de update ruim onder de limiet van 100 bestanden per GitHub-webupload.
 
-`assets/images/recipe-001.jpg` t/m `assets/images/recipe-080.jpg`
+Upload de inhoud van de ZIP naar dezelfde repository en overschrijf de bestaande bestanden.
+Laat de bestaande map `assets/images/` staan voor de saladefoto's.
 
-Laat de bestaande map `assets/images/` dus op GitHub staan en vervang alleen de bestanden uit deze update-ZIP.
-
-## Uploaden
-1. Pak deze ZIP uit.
-2. Upload de inhoud naar de hoofdmap van dezelfde GitHub repository.
-3. Kies bij dubbele bestanden **Replace/overschrijven**.
-4. Verwijder `assets/images/` niet.
-5. Na de commit kan GitHub Pages de nieuwe layout tonen.
-6. Op Android kan de PWA eventueel één keer opnieuw worden gestart/ververst vanwege de nieuwe cacheversie.
-
-Versie: 2.3
-
-## Nieuw in v2.3
-De boodschappenlijst laat standaard basisvoorraad weg:
-- zout
-- peper
-- olijfolie
-- bakolie / zonnebloemolie / neutrale of plantaardige olie
-- water
-
-Dit gebeurt alleen in de boodschappenlijst. In het recept zelf blijven deze ingrediënten gewoon zichtbaar.
+Versie: 2.5
