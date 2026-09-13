@@ -1,4 +1,4 @@
-# SaladeMenu v2.2 – layout-update
+# SaladeMenu v2.3 – layout-update
 
 Deze versie gebruikt de nieuwe dashboard-layout met:
 - brede header en navigatie;
@@ -25,4 +25,14 @@ Laat de bestaande map `assets/images/` dus op GitHub staan en vervang alleen de 
 5. Na de commit kan GitHub Pages de nieuwe layout tonen.
 6. Op Android kan de PWA eventueel één keer opnieuw worden gestart/ververst vanwege de nieuwe cacheversie.
 
-Versie: 2.2
+Versie: 2.3
+
+## Nieuw in v2.3
+De boodschappenlijst laat standaard basisvoorraad weg:
+- zout
+- peper
+- olijfolie
+- bakolie / zonnebloemolie / neutrale of plantaardige olie
+- water
+
+Dit gebeurt alleen in de boodschappenlijst. In het recept zelf blijven deze ingrediënten gewoon zichtbaar.

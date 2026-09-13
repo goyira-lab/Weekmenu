@@ -1,6 +1,6 @@
-const APP_VERSION="2.2";
-let recipes=[], selected=new Set(JSON.parse(localStorage.getItem("salademenuSelectedV22")||"[]"));
-let favorites=new Set(JSON.parse(localStorage.getItem("salademenuFavoritesV22")||"[]"));
+const APP_VERSION="2.3";
+let recipes=[], selected=new Set(JSON.parse(localStorage.getItem("salademenuSelectedV23")||"[]"));
+let favorites=new Set(JSON.parse(localStorage.getItem("salademenuFavoritesV23")||"[]"));
 let currentView="recipes", displayMode="grid";
 
 const $=s=>document.querySelector(s);
@@ -102,9 +102,18 @@ function renderPopularVegetables(){
   $("#popularVeg").innerHTML=counts.map(([v,n])=>`<button class="veg-pill" data-veg="${esc(v)}">${esc(v)} <b>(${n})</b></button>`).join("");
   $("#popularVeg").querySelectorAll("[data-veg]").forEach(b=>b.onclick=()=>{$("#vegFilter").value=b.dataset.veg;renderRecipes();window.scrollTo({top:80,behavior:"smooth"});});
 }
+// Standaard basisvoorraad die niet op de boodschappenlijst komt.
+const PANTRY_PATTERNS=[
+  /\bzout\b/i, /\bpeper\b/i, /\bolijfolie\b/i, /\bbakolie\b/i,
+  /\bzonnebloemolie\b/i, /\bplantaardige olie\b/i, /\bneutrale olie\b/i,
+  /\bwater\b/i
+];
+function isPantryIngredient(name){
+  return PANTRY_PATTERNS.some(rx=>rx.test(String(name||"")));
+}
 function aggregateShopping(){
   const totals=new Map();
-  recipes.filter(r=>selected.has(r.id)).forEach(r=>r.shopping.forEach(x=>{
+  recipes.filter(r=>selected.has(r.id)).forEach(r=>r.shopping.filter(x=>!isPantryIngredient(x.name)).forEach(x=>{
     const key=x.name+"|||"+x.unit, q=Number(x.qty), old=totals.get(key)||{name:x.name,qty:0,unit:x.unit};
     if(Number.isFinite(q))old.qty+=q; totals.set(key,old);
   }));
@@ -142,8 +151,8 @@ function openRecipe(id){
 function toggleSelected(id,on){on?selected.add(id):selected.delete(id);persist();renderAll();}
 function toggleFavorite(id){favorites.has(id)?favorites.delete(id):favorites.add(id);persist();}
 function persist(){
-  localStorage.setItem("salademenuSelectedV22",JSON.stringify([...selected]));
-  localStorage.setItem("salademenuFavoritesV22",JSON.stringify([...favorites]));
+  localStorage.setItem("salademenuSelectedV23",JSON.stringify([...selected]));
+  localStorage.setItem("salademenuFavoritesV23",JSON.stringify([...favorites]));
   updateSelectedCount();
 }
 function updateSelectedCount(){$("#selectedCount").textContent=selected.size;}
