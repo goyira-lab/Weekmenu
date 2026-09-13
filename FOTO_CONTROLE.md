@@ -1,0 +1,84 @@
+# Foto-controle WeekMenu v2.9
+
+Per hoofdgerecht is de foto opnieuw op gerechtstype geselecteerd.
+
+- 81 Pasta pesto met kip en tomaat → pesto_pasta
+- 82 Klassieke spaghetti carbonara → carbonara2
+- 83 Pasta puttanesca → veg_pasta
+- 84 Ragu bolognese met tagliatelle → bolognese2
+- 85 Lasagne met bechamelsaus → lasagne2
+- 86 Romige green goddess-pasta → veg_pasta
+- 87 Gezonde lasagne met champignons → lasagne2
+- 88 Tagliatelle met ricotta-tomatensaus en kip → veg_pasta
+- 89 Orzo met linzen en gekaramelliseerde ui → veg_pasta
+- 90 Spaghetti met zalm en courgettesaus → salmon_potato
+- 91 Eenpans-pasta pesto met bloemkool → pesto_pasta
+- 92 Vegetarische lasagne met prei en mozzarella → lasagne2
+- 93 Pasta rode pesto → pesto_pasta
+- 94 Pasta aglio e olio → carbonara
+- 95 Pasta met champignons → veg_pasta
+- 96 Ravioli ovenschotel met paddenstoelen en bloemkool → pasta_casserole
+- 97 Ovenschotel met kabeljauw, witlof en mosterdroom → salmon_oven
+- 98 Ovenschotel met krieltjes en broccoli → pasta_casserole
+- 99 Ovenschotel met nachos van tortilla → pasta_casserole
+- 100 Gnocchi-ovenschotel met spekjes → pasta_casserole
+- 101 Lasagne met venkel en geitenkaas → lasagne2
+- 102 Gezonde ovenschotel met kip-champignonsaus, prei en aardappelpuree → cottage_pie
+- 103 Macaroni-ovenschotel met broccoli → macaroni_broccoli
+- 104 Broccoli-pastaovenschotel met zalm → salmon_oven
+- 105 Broccoli-kipovenschotel met wortelsalade → caprese_oven
+- 106 Witlof ovenschotel met ham, kaas en mosterdpuree → pasta_casserole
+- 107 Traybake met zalm, broccoli en pastinaak → salmon_oven
+- 108 Ovenquesadilla's met cajunkip → tacos
+- 109 Traybake met zoete aardappel, broccoli en slavink → curry_rice2
+- 110 Nasi goreng (Indonesisch) → nasi2
+- 111 Biryani → curry_rice2
+- 112 Risotto al limone (citroenrisotto) → curry_rice2
+- 113 Rijst met gekruide kip → chicken_curry_rice
+- 114 Kip tandoori met rijst → chicken_curry_rice
+- 115 Zoetzure kip met rijst → red_curry_rice
+- 116 Wraps met gehakt en rauwkost → beef_wraps
+- 117 Wraps met kipfilethaasjes → wrap_chicken2
+- 118 Wraps met tomaat en gehakt → beef_wraps
+- 119 Wraps met gegrilde biefstuk → beef_wraps
+- 120 Wraps met kerriekip → wrap_chicken2
+- 121 Orzo en kabeljauw → salmon_oven
+- 122 Spaghetti met Genovese pesto, zongedroogde tomaten en burrata → pesto_pasta
+- 123 Gnocchi met paprika-tomatensaus en gebakken zalm → salmon_potato
+- 124 Spaghetti carbonara → carbonara2
+- 125 Pasta met vis en roomsaus → salmon_potato
+- 126 Pasta met verse groenten en gehakt → bolognese
+- 127 Pasta met kip-kerrieroomsaus → chicken_curry_rice
+- 128 Pasta pomodoro met burrata → veg_pasta
+- 129 Pasta met gehaktsaus en rucola → bolognese2
+- 130 Romige pasta met gerookte kip → veg_pasta
+- 131 Pasta met broccoli en kaas → macaroni_broccoli
+- 132 Pasta met spinazie en spekjes → veg_pasta
+- 133 Pasta met kip, spinazie en boursin → veg_pasta
+- 134 Pasta met rode pesto en zalm → salmon_potato
+- 135 Spaghetti aglio e olio met garnalen → shrimp_noodles
+- 136 Wraps met kip en avocado → wrap_chicken2
+- 137 Wraps met vis en mangosalsa → fajitas
+- 138 Wraps met vega shoarma en knoflooksaus → wrap_chicken2
+- 139 Kipfajita-wraps → wrap_chicken2
+- 140 Knapperige wraps met spinazie en gehakt → beef_wraps
+- 141 Klassieke wraps met kip → wrap_chicken2
+- 142 Wraps met kip en romige tomatensaus → wrap_chicken2
+- 143 Mexicaanse wraps met guacamole → wrap_chicken2
+- 144 Wraps met gehakt uit de oven → beef_wraps
+- 145 Mexicaanse enchiladas met gehakt → tacos
+- 146 Gebakken rijst met honey garlic kip → nasi2
+- 147 Rijst met kip en erwten → curry_rice2
+- 148 Truffelrisotto met portobello en rucola → curry_rice2
+- 149 Paella uit de oven met geroosterde venkel en citroen → curry_rice2
+- 150 Pandanrijst met rode kool rendang en zoetzure augurk → chili2
+- 151 Hollandse nasi → nasi2
+- 152 Chinees gebakken rijst → nasi2
+- 153 Ovenschotel met gehakt, champignons, prei en aardappel → cottage_pie
+- 154 Ovenschotel met prei en gehakt → cottage_pie
+- 155 Engelse cottage pie → cottage_pie
+- 156 Zuurkoolovenschotel met gehakt, spekjes en ananas → cottage_pie
+- 157 Ovenschotel met zalm en verse spinazie → salmon_oven
+- 158 Bloemkool ovenschotel met krieltjes en gehakt → cottage_pie
+- 159 Italiaanse ovenschotel met saucijs → pasta_casserole
+- 160 Koolhydraatarme ovenschotel met kip, spinazie en champignons → caprese_oven
