@@ -1,12 +1,12 @@
 {
   "name": "SaladeMenu",
   "short_name": "SaladeMenu",
-  "description": "80 salade-recepten met boodschappenlijst",
+  "description": "80 salade-recepten met favorieten en boodschappenlijst",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f4f6f3",
-  "theme_color": "#196c3a",
+  "background_color": "#fbfcfb",
+  "theme_color": "#2f984d",
   "icons": [
     {
       "src": "assets/icons/icon-192.png",

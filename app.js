@@ -1,69 +1,151 @@
-const APP_VERSION="2.1";
-let recipes=[], selected=new Set(JSON.parse(localStorage.getItem("selectedRecipesV2")||"[]"));
+const APP_VERSION="2.2";
+let recipes=[], selected=new Set(JSON.parse(localStorage.getItem("salademenuSelectedV22")||"[]"));
+let favorites=new Set(JSON.parse(localStorage.getItem("salademenuFavoritesV22")||"[]"));
+let currentView="recipes", displayMode="grid";
+
 const $=s=>document.querySelector(s);
-const grid=$("#recipeGrid"), veg=$("#vegFilter"), search=$("#searchInput"), dlg=$("#recipeDialog");
+const $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 const fmt=n=>Number.isInteger(n)?String(n):String(Math.round(n*100)/100).replace(".",",");
 
 async function init(){
   recipes=await fetch("recipes.json?v="+APP_VERSION).then(r=>r.json());
-  const vegetables=[...new Set(recipes.flatMap(r=>r.vegetables))].sort((a,b)=>a.localeCompare(b,"nl"));
-  vegetables.forEach(v=>veg.add(new Option(v,v)));
-  bind();render();updateSelectedCount();
+  buildFilters();
+  bind();
+  renderRecipes();
+  renderPopularVegetables();
+  updateSelectedCount();
   if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js?v="+APP_VERSION).catch(()=>{});
 }
+function buildFilters(){
+  const counts=vegCounts();
+  [...counts.keys()].sort((a,b)=>a.localeCompare(b,"nl")).forEach(v=>$("#vegFilter").add(new Option(v,v)));
+}
 function bind(){
-  veg.addEventListener("change",render);search.addEventListener("input",render);
-  document.querySelectorAll(".navbtn").forEach(b=>b.onclick=()=>showView(b.dataset.view));
-  $("#clearSelected").onclick=()=>{selected.clear();save();render();renderShopping();};
-  $(".close").onclick=()=>dlg.close();
-  dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});
-  $("#dialogSelect").onchange=e=>{const id=Number(e.target.dataset.id);toggleSelected(id,e.target.checked);render();};
+  $("#searchInput").addEventListener("input",renderRecipes);
+  $("#vegFilter").addEventListener("change",renderRecipes);
+  $("#gridBtn").onclick=()=>setDisplay("grid");
+  $("#listBtn").onclick=()=>setDisplay("list");
+  $("#shoppingFull").onclick=()=>showView("shopping");
+  $("#clearSelected").onclick=()=>{selected.clear();persist();renderAll();};
+  $("#showAllVeg").onclick=()=>{$("#vegFilter").focus(); window.scrollTo({top:80,behavior:"smooth"});};
+  $$(".nav-item,[data-nav]").forEach(el=>el.addEventListener("click",e=>{e.preventDefault();showView(el.dataset.nav)}));
+  $(".dialog-close").onclick=()=>$("#recipeDialog").close();
+  $("#recipeDialog").addEventListener("click",e=>{if(e.target===$("#recipeDialog"))$("#recipeDialog").close();});
+  $("#dialogSelect").onchange=e=>{toggleSelected(Number(e.target.dataset.id),e.target.checked);};
+  $("#dialogFavorite").onclick=()=>{const id=Number($("#dialogFavorite").dataset.id);toggleFavorite(id);openRecipe(id);};
 }
 function showView(v){
-  $("#menuView").hidden=v!=="menu";$("#shoppingView").hidden=v!=="shopping";
-  document.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("active",b.dataset.view===v));
-  if(v==="shopping")renderShopping();
+  currentView=v;
+  ["recipes","shopping","favorites","about"].forEach(name=>{
+    $("#"+name+"View").hidden=name!==v;
+  });
+  $$(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.nav===v));
+  if(v==="shopping")renderShoppingPage();
+  if(v==="favorites")renderFavorites();
+  window.scrollTo({top:0,behavior:"smooth"});
 }
-function filtered(){
-  const q=search.value.trim().toLowerCase(),vf=veg.value;
-  return recipes.filter(r=>(!vf||r.vegetables.includes(vf))&&(!q||r.title.toLowerCase().includes(q)||r.ingredients.join(" ").toLowerCase().includes(q)));
+function setDisplay(mode){
+  displayMode=mode;
+  $("#recipeGrid").classList.toggle("list-mode",mode==="list");
+  $("#gridBtn").classList.toggle("active",mode==="grid");
+  $("#listBtn").classList.toggle("active",mode==="list");
 }
-function render(){
-  const rs=filtered();$("#resultCount").textContent=rs.length;
-  grid.innerHTML=rs.map(r=>`<article class="recipe-card">
-    <img src="${r.image}" alt="${esc(r.title)}" loading="lazy" data-open="${r.id}">
-    <div class="recipe-content">
-      <div class="chips">${r.vegetables.map(v=>`<span class="chip">${esc(v)}</span>`).join("")}</div>
-      <h3 data-open="${r.id}">${String(r.id).padStart(3,"0")}. ${esc(r.title)}</h3>
-      <div class="card-actions">
-        <label class="pick"><input type="checkbox" data-select="${r.id}" ${selected.has(r.id)?"checked":""}> Selecteer</label>
-        <button class="openbtn" data-open="${r.id}">Recept</button>
+function vegCounts(){
+  const m=new Map();
+  recipes.forEach(r=>r.vegetables.forEach(v=>m.set(v,(m.get(v)||0)+1)));
+  return m;
+}
+function filteredRecipes(){
+  const q=$("#searchInput").value.trim().toLowerCase(), v=$("#vegFilter").value;
+  return recipes.filter(r=>(!v||r.vegetables.includes(v))&&(!q||r.title.toLowerCase().includes(q)||r.ingredients.join(" ").toLowerCase().includes(q)));
+}
+function mainVeg(r){return r.vegetables[0]||"Salade";}
+function servingText(r){
+  const m=String(r.servings||"").match(/\d+/); return m?m[0]:"4";
+}
+function cardHTML(r){
+  const fav=favorites.has(r.id), sel=selected.has(r.id);
+  return `<article class="recipe-card">
+    <div class="photo-wrap">
+      <img class="recipe-photo" src="${r.image}" alt="${esc(r.title)}" loading="lazy" data-open="${r.id}">
+      <button class="heart ${fav?"active":""}" data-fav="${r.id}" aria-label="Favoriet">${fav?"♥":"♡"}</button>
+    </div>
+    <div class="card-body">
+      <h3 class="recipe-title" data-open="${r.id}">${esc(r.title)}</h3>
+      <div class="meta">
+        <span><span class="leafdot">🍃</span> ${esc(mainVeg(r))}</span>
+        <span>🍴 ${servingText(r)}</span>
       </div>
-    </div></article>`).join("");
-  grid.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openRecipe(Number(el.dataset.open)));
-  grid.querySelectorAll("[data-select]").forEach(el=>el.onchange=()=>toggleSelected(Number(el.dataset.select),el.checked));
+      <div class="select-row">
+        <label><input type="checkbox" data-select="${r.id}" ${sel?"checked":""}> Voeg toe aan boodschappen</label>
+      </div>
+      <button class="recipe-button" data-open="${r.id}">Bekijk recept →</button>
+    </div>
+  </article>`;
 }
-function toggleSelected(id,on){on?selected.add(id):selected.delete(id);save();updateSelectedCount();}
-function save(){localStorage.setItem("selectedRecipesV2",JSON.stringify([...selected]));updateSelectedCount();}
-function updateSelectedCount(){$("#selectedCount").textContent=selected.size;}
-function openRecipe(id){
-  const r=recipes.find(x=>x.id===id);if(!r)return;
-  $("#dialogImage").src=r.image;$("#dialogImage").alt=r.title;$("#dialogTitle").textContent=r.title;
-  $("#dialogServings").textContent=r.servings||"";$("#dialogVeg").innerHTML=r.vegetables.map(v=>`<span class="chip">${esc(v)}</span>`).join("");
-  $("#dialogIngredients").innerHTML=r.ingredients.map(x=>`<li>${esc(x)}</li>`).join("");
-  $("#dialogSteps").innerHTML=r.steps.map(x=>`<li>${esc(x)}</li>`).join("");
-  const cb=$("#dialogSelect");cb.dataset.id=id;cb.checked=selected.has(id);dlg.showModal();
+function wireCards(scope=document){
+  scope.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openRecipe(Number(el.dataset.open)));
+  scope.querySelectorAll("[data-select]").forEach(el=>el.onchange=()=>toggleSelected(Number(el.dataset.select),el.checked));
+  scope.querySelectorAll("[data-fav]").forEach(el=>el.onclick=e=>{e.stopPropagation();toggleFavorite(Number(el.dataset.fav));renderRecipes();if(currentView==="favorites")renderFavorites();});
 }
-function renderShopping(){
+function renderRecipes(){
+  const rs=filteredRecipes();
+  $("#resultCount").textContent=rs.length;
+  $("#recipeGrid").innerHTML=rs.map(cardHTML).join("");
+  $("#recipeGrid").classList.toggle("list-mode",displayMode==="list");
+  wireCards($("#recipeGrid"));
+  renderShoppingMini();
+}
+function renderPopularVegetables(){
+  const counts=[...vegCounts()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"nl")).slice(0,8);
+  $("#popularVeg").innerHTML=counts.map(([v,n])=>`<button class="veg-pill" data-veg="${esc(v)}">${esc(v)} <b>(${n})</b></button>`).join("");
+  $("#popularVeg").querySelectorAll("[data-veg]").forEach(b=>b.onclick=()=>{$("#vegFilter").value=b.dataset.veg;renderRecipes();window.scrollTo({top:80,behavior:"smooth"});});
+}
+function aggregateShopping(){
   const totals=new Map();
   recipes.filter(r=>selected.has(r.id)).forEach(r=>r.shopping.forEach(x=>{
-    const key=x.name+"|||"+x.unit,old=totals.get(key)||{name:x.name,qty:0,unit:x.unit},q=Number(x.qty);
-    if(Number.isFinite(q))old.qty+=q;totals.set(key,old);
+    const key=x.name+"|||"+x.unit, q=Number(x.qty), old=totals.get(key)||{name:x.name,qty:0,unit:x.unit};
+    if(Number.isFinite(q))old.qty+=q; totals.set(key,old);
   }));
-  const arr=[...totals.values()].sort((a,b)=>a.name.localeCompare(b.name,"nl"));
-  $("#shoppingEmpty").hidden=arr.length>0;$("#shoppingList").hidden=arr.length===0;
-  $("#shoppingList").innerHTML=arr.length?`<div class="shopping-row"><span>Ingrediënt</span><span class="num">Totaal</span><span class="unit">Eenheid</span></div>`+
-    arr.map(x=>`<div class="shopping-row"><span>${esc(x.name)}</span><span class="num">${fmt(x.qty)}</span><span class="unit">${esc(x.unit||"")}</span></div>`).join(""):"";
+  return [...totals.values()].sort((a,b)=>a.name.localeCompare(b.name,"nl"));
 }
-function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+function renderShoppingMini(){
+  updateSelectedCount();
+  const arr=aggregateShopping(), empty=arr.length===0;
+  $("#shoppingEmpty").hidden=!empty; $("#shoppingList").hidden=empty;
+  $("#shoppingList").innerHTML=arr.slice(0,8).map(x=>`<div class="mini-row"><span>${esc(x.name)}</span><span class="qty">${fmt(x.qty)}</span><span class="unit">${esc(x.unit)}</span></div>`).join("");
+  $("#shoppingFull").textContent=arr.length>8?`Bekijk volledige lijst (${arr.length})`:"Bekijk volledige lijst";
+}
+function renderShoppingPage(){
+  const arr=aggregateShopping(), empty=arr.length===0;
+  $("#shoppingPageEmpty").hidden=!empty; $("#shoppingPageList").hidden=empty;
+  $("#shoppingPageList").innerHTML=empty?"":`<div class="shop-row"><span>Ingrediënt</span><span class="qty">Totaal</span><span class="unit">Eenheid</span></div>`+
+    arr.map(x=>`<div class="shop-row"><span>${esc(x.name)}</span><span class="qty">${fmt(x.qty)}</span><span class="unit">${esc(x.unit)}</span></div>`).join("");
+}
+function renderFavorites(){
+  const rs=recipes.filter(r=>favorites.has(r.id));
+  $("#favoritesEmpty").hidden=rs.length>0;
+  $("#favoriteGrid").innerHTML=rs.map(cardHTML).join("");
+  wireCards($("#favoriteGrid"));
+}
+function openRecipe(id){
+  const r=recipes.find(x=>x.id===id); if(!r)return;
+  $("#dialogImage").src=r.image; $("#dialogImage").alt=r.title; $("#dialogTitle").textContent=r.title;
+  $("#dialogServings").textContent=r.servings||""; $("#dialogVeg").innerHTML=r.vegetables.map(v=>`<span class="chip">${esc(v)}</span>`).join("");
+  $("#dialogIngredients").innerHTML=r.ingredients.map(x=>`<li>${esc(x)}</li>`).join("");
+  $("#dialogSteps").innerHTML=r.steps.map(x=>`<li>${esc(x)}</li>`).join("");
+  const cb=$("#dialogSelect"); cb.dataset.id=id; cb.checked=selected.has(id);
+  const fav=$("#dialogFavorite"); fav.dataset.id=id; fav.textContent=favorites.has(id)?"♥":"♡"; fav.classList.toggle("active",favorites.has(id));
+  $("#recipeDialog").showModal();
+}
+function toggleSelected(id,on){on?selected.add(id):selected.delete(id);persist();renderAll();}
+function toggleFavorite(id){favorites.has(id)?favorites.delete(id):favorites.add(id);persist();}
+function persist(){
+  localStorage.setItem("salademenuSelectedV22",JSON.stringify([...selected]));
+  localStorage.setItem("salademenuFavoritesV22",JSON.stringify([...favorites]));
+  updateSelectedCount();
+}
+function updateSelectedCount(){$("#selectedCount").textContent=selected.size;}
+function renderAll(){renderRecipes();renderShoppingMini();if(currentView==="shopping")renderShoppingPage();if(currentView==="favorites")renderFavorites();}
 init();

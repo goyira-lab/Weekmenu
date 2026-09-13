@@ -3,72 +3,133 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#196c3a">
-  <meta name="description" content="SaladeMenu met 80 recepten, groentefilter en automatische boodschappenlijst.">
+  <meta name="theme-color" content="#2f984d">
+  <meta name="description" content="SaladeMenu met 80 recepten, favorieten en automatische boodschappenlijst.">
   <title>SaladeMenu · 80 recepten</title>
   <link rel="icon" type="image/png" href="assets/icons/favicon.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=2.2">
 </head>
 <body>
-<header class="topbar">
-  <div class="brand">
-    <img src="assets/icons/icon-192.png" alt="" class="brand-icon">
+<header class="site-header">
+  <a class="brand" href="#" data-nav="recipes" aria-label="SaladeMenu">
+    <img src="assets/icons/icon-192.png" alt="">
     <div>
-      <div class="brandline"><h1>SaladeMenu</h1><span class="version">v2.1</span></div>
-      <p>80 recepten · HD-afbeeldingen · installable op Android</p>
+      <div class="brand-name">Salade<span>Menu</span></div>
+      <div class="brand-sub">80 frisse salade recepten voor elke dag</div>
     </div>
-  </div>
-  <nav>
-    <button class="navbtn active" data-view="menu">Recepten</button>
-    <button class="navbtn" data-view="shopping">Boodschappen <span id="selectedCount" class="badge">0</span></button>
+  </a>
+
+  <nav class="main-nav" aria-label="Hoofdnavigatie">
+    <button class="nav-item active" data-nav="recipes"><span class="nav-icon">⌂</span><span>Recepten</span></button>
+    <button class="nav-item" data-nav="shopping"><span class="nav-icon">🛒</span><span>Boodschappen</span></button>
+    <button class="nav-item" data-nav="favorites"><span class="nav-icon">♥</span><span>Favorieten</span></button>
+    <button class="nav-item" data-nav="about"><span class="nav-icon">ⓘ</span><span>Over</span></button>
   </nav>
+
+  <div class="header-quote">Lekker, gezond<br>en makkelijk! <span>🍃</span></div>
 </header>
 
-<main>
-  <section id="menuView">
-    <div class="controls card">
-      <label>Hoofdgroente
+<main class="page-shell">
+  <section id="recipesView">
+    <div class="toolbar">
+      <label class="searchbox">
+        <span>⌕</span>
+        <input id="searchInput" type="search" placeholder="Zoek op naam of ingrediënt…">
+      </label>
+
+      <label class="filterbox">
+        <span class="leaf">🍃</span>
+        <span class="filterlabel">Filter op hoofdgroente</span>
         <select id="vegFilter"><option value="">Alle groenten</option></select>
       </label>
-      <label>Zoeken
-        <input id="searchInput" type="search" placeholder="Zoek op gerecht of ingrediënt…">
-      </label>
-      <div class="resultcount"><strong id="resultCount">80</strong> recepten</div>
+
+      <div class="result-card">
+        <strong><span id="resultCount">80</span> recepten</strong>
+        <small>Gevonden</small>
+        <div class="viewbuttons">
+          <button class="viewbtn active" id="gridBtn" title="Rasterweergave">▦</button>
+          <button class="viewbtn" id="listBtn" title="Lijstweergave">☷</button>
+        </div>
+      </div>
     </div>
-    <div id="recipeGrid" class="grid"></div>
+
+    <div class="content-layout">
+      <div>
+        <div id="recipeGrid" class="recipe-grid"></div>
+      </div>
+
+      <aside class="sidebar">
+        <section class="side-card shopping-card" id="shoppingCard">
+          <div class="side-title">
+            <h2>🍴 Boodschappenlijst</h2>
+            <span id="selectedCount" class="count-badge">0</span>
+          </div>
+          <div id="shoppingEmpty" class="shopping-empty">
+            <div class="cart-icon">🛒</div>
+            <strong>Nog geen recepten geselecteerd</strong>
+            <p>Vink recepten aan om hier automatisch de benodigde ingrediënten te zien.</p>
+          </div>
+          <div id="shoppingList" class="mini-shopping" hidden></div>
+          <button id="shoppingFull" class="wide-btn">Bekijk volledige lijst</button>
+        </section>
+
+        <section class="side-card">
+          <div class="side-title"><h2>🍃 Populaire groenten</h2></div>
+          <div id="popularVeg" class="veg-pills"></div>
+          <button id="showAllVeg" class="text-btn">Toon alle groenten</button>
+        </section>
+
+        <section class="quote-card">
+          <div class="quote-leaf">🍃</div>
+          <blockquote>“Een goede salade<br>begint met verse ingrediënten”</blockquote>
+        </section>
+      </aside>
+    </div>
   </section>
 
   <section id="shoppingView" hidden>
-    <div class="shopping-head card">
-      <div>
-        <h2>Boodschappenlijst</h2>
-        <p>Ingrediënten van geselecteerde recepten worden automatisch samengevoegd.</p>
-      </div>
+    <div class="standalone-head">
+      <div><h1>Boodschappenlijst</h1><p>Alles van je geselecteerde recepten, automatisch samengevoegd.</p></div>
       <button id="clearSelected" class="secondary">Alles uitvinken</button>
     </div>
-    <div id="shoppingEmpty" class="empty card">Nog geen recepten geselecteerd.</div>
-    <div id="shoppingList" class="shopping card" hidden></div>
+    <div id="shoppingPageEmpty" class="empty-panel">Nog geen recepten geselecteerd.</div>
+    <div id="shoppingPageList" class="shopping-table" hidden></div>
+  </section>
+
+  <section id="favoritesView" hidden>
+    <div class="standalone-head">
+      <div><h1>Favorieten</h1><p>Je opgeslagen recepten.</p></div>
+    </div>
+    <div id="favoriteGrid" class="recipe-grid"></div>
+    <div id="favoritesEmpty" class="empty-panel" hidden>Je hebt nog geen favorieten.</div>
+  </section>
+
+  <section id="aboutView" hidden>
+    <div class="about-panel">
+      <img src="assets/icons/icon-192.png" alt="">
+      <h1>SaladeMenu <span class="version">v2.2</span></h1>
+      <p>80 salade-recepten met groentefilter, favorieten en automatische boodschappenlijst.</p>
+      <p>Deze versie gebruikt de bestaande receptfoto's uit <code>assets/images/</code> op GitHub. De foto's zitten daarom niet opnieuw in dit updatepakket.</p>
+    </div>
   </section>
 </main>
 
-<footer>
-  <span>SaladeMenu v2.1</span>
-  <span>80 recepten · PWA/Android · verbeterde bronafbeeldingen</span>
-</footer>
-
 <dialog id="recipeDialog">
-  <button class="close" aria-label="Sluiten">×</button>
+  <button class="dialog-close" aria-label="Sluiten">×</button>
   <img id="dialogImage" alt="">
   <div class="dialog-body">
-    <div class="dialog-title-row">
+    <div class="dialog-top">
       <div>
         <div id="dialogVeg" class="chips"></div>
         <h2 id="dialogTitle"></h2>
         <p id="dialogServings"></p>
       </div>
-      <label class="pick"><input id="dialogSelect" type="checkbox"> Selecteer</label>
+      <div class="dialog-actions">
+        <button id="dialogFavorite" class="heart big-heart" aria-label="Favoriet">♡</button>
+        <label class="select-recipe"><input id="dialogSelect" type="checkbox"> Selecteer</label>
+      </div>
     </div>
     <div class="recipe-cols">
       <div><h3>Ingrediënten</h3><ul id="dialogIngredients"></ul></div>
@@ -77,6 +138,6 @@
   </div>
 </dialog>
 
-<script src="app.js"></script>
+<script src="app.js?v=2.2"></script>
 </body>
 </html>

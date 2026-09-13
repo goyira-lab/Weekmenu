@@ -1,32 +1,28 @@
-# SaladeMenu v2.1
+# SaladeMenu v2.2 – layout-update
 
-Nieuwe GitHub Pages-versie met maximaal 80 recepten.
+Deze versie gebruikt de nieuwe dashboard-layout met:
+- brede header en navigatie;
+- zoekveld + hoofdgroentefilter;
+- receptenraster zoals in het gekozen ontwerp;
+- favorieten;
+- boodschappenlijst in de rechterzijbalk;
+- populaire groenten;
+- volledige boodschappenpagina;
+- Android/PWA ondersteuning.
 
-## Nieuw in v2.1
-- Exact 80 recepten (recept 1 t/m 80)
-- Hogere-resolutie gerechtfoto's rechtstreeks uit de originele bron-PDF waar beschikbaar
-- Android/PWA app-iconen (192px, 512px en maskable)
-- Installable via Chrome: 'Toevoegen aan startscherm' / 'App installeren'
-- Versienummer zichtbaar in de site
-- Groentefilter, zoeken, receptdetail en automatische boodschappenlijst
+## Belangrijk: receptfoto's zitten NIET in deze ZIP
+De site verwacht de bestaande afbeeldingen op GitHub op exact deze paden:
 
-## Publiceren op GitHub Pages
-1. Upload de inhoud van deze ZIP naar de hoofdmap van je GitHub-repository.
-2. GitHub: Settings -> Pages.
-3. Source: Deploy from a branch.
-4. Branch: main, folder: /root.
-5. Sla op en open je GitHub Pages URL.
+`assets/images/recipe-001.jpg` t/m `assets/images/recipe-080.jpg`
 
-Bij vervanging van een bestaande versie: upload alle bestanden uit de ZIP over de oude bestanden heen.
+Laat de bestaande map `assets/images/` dus op GitHub staan en vervang alleen de bestanden uit deze update-ZIP.
 
+## Uploaden
+1. Pak deze ZIP uit.
+2. Upload de inhoud naar de hoofdmap van dezelfde GitHub repository.
+3. Kies bij dubbele bestanden **Replace/overschrijven**.
+4. Verwijder `assets/images/` niet.
+5. Na de commit kan GitHub Pages de nieuwe layout tonen.
+6. Op Android kan de PWA eventueel één keer opnieuw worden gestart/ververst vanwege de nieuwe cacheversie.
 
-## Uploaden in batches van maximaal 90 bestanden
-Voor GitHub's web-upload limiet is deze release ook opgesplitst in upload-batches.
-Pak elke batch-ZIP lokaal uit en upload de inhoud naar dezelfde GitHub-repository.
-
-Aanbevolen volgorde:
-1. `batch_01_core_en_icons.zip`
-2. `batch_02_recept_afbeeldingen_001_040.zip`
-3. `batch_03_recept_afbeeldingen_041_080.zip`
-
-Elke batch bevat ruim minder dan 90 bestanden en bewaart de juiste mapstructuur.
+Versie: 2.2
