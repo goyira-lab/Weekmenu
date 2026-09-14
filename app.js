@@ -1,6 +1,6 @@
-const APP_VERSION="3.0";
-let recipes=[], selected=new Set(JSON.parse(localStorage.getItem("weekmenuSelectedV30")||"[]"));
-let favorites=new Set(JSON.parse(localStorage.getItem("weekmenuFavoritesV30")||"[]"));
+const APP_VERSION="3.2";
+let recipes=[], selected=new Set(JSON.parse(localStorage.getItem("weekmenuSelectedV32")||"[]"));
+let favorites=new Set(JSON.parse(localStorage.getItem("weekmenuFavoritesV32")||"[]"));
 let currentView="recipes", displayMode="grid";
 
 const $=s=>document.querySelector(s);
@@ -66,7 +66,7 @@ function filteredRecipes(){
     let ok=true;
     if(filter.startsWith("Categorie: ")) ok=r.category===filter.slice(11);
     else if(filter.startsWith("Groente: ")) ok=(r.vegetables||[]).includes(filter.slice(9));
-    return ok && (!q || r.title.toLowerCase().includes(q) || r.ingredients.join(" ").toLowerCase().includes(q) || String(r.category||"").toLowerCase().includes(q));
+    return ok && (!q || r.title.toLowerCase().includes(q) || (r.ingredients||[]).join(" ").toLowerCase().includes(q) || String(r.category||"").toLowerCase().includes(q));
   });
 }
 function mainVeg(r){return r.kind==="avondgerecht"?(r.category||"Avondgerecht"):((r.vegetables||[])[0]||"Salade");}
@@ -122,44 +122,42 @@ function isPantryIngredient(name){
   return PANTRY_PATTERNS.some(rx=>rx.test(String(name||"")));
 }
 
-const PHOTO_CACHE_KEY="weekmenuPhotoCacheV30";
+const PHOTO_CACHE_KEY="weekmenuPhotoCacheV32";
 let photoCache={};
 try{photoCache=JSON.parse(localStorage.getItem(PHOTO_CACHE_KEY)||"{}")}catch(e){photoCache={};}
 async function fetchCommonsPhoto(r){
-  if(r.image) return {url:r.image};
+  if(r.image) return {url:r.image, source:"", license:"", artist:""};
+  if(!r.sourcePage) return null;
   if(photoCache[r.id]) return photoCache[r.id];
 
-  const raw=(r.imageSearch||r.title).trim();
-  const q=encodeURIComponent('"'+raw+'"');
-  const api="https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=12&gsrsearch="+q+
-    "&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1200&format=json&origin=*";
-
-  const clean=s=>String(s||"").replace(/<[^>]*>/g," ").toLowerCase();
-  const keywords=raw.toLowerCase().split(/[\s\-]+/).filter(x=>x.length>2 && !["with","and","met","the"].includes(x));
-
+  const api="https://en.wikibooks.org/w/api.php?action=query&titles="+encodeURIComponent(r.sourcePage)+
+    "&prop=pageimages&piprop=thumbnail|name|original&pithumbsize=1200&format=json&origin=*";
   try{
     const data=await fetch(api,{cache:"force-cache"}).then(x=>x.json());
-    const pages=Object.values((data.query&&data.query.pages)||{});
-    const candidates=pages.filter(x=>x.imageinfo&&x.imageinfo[0]&&x.imageinfo[0].thumburl).map(p=>{
-      const ii=p.imageinfo[0], md=ii.extmetadata||{};
-      const license=(md.LicenseShortName&&md.LicenseShortName.value)||"";
-      const hay=clean((p.title||"")+" "+((md.ImageDescription&&md.ImageDescription.value)||"")+" "+((md.ObjectName&&md.ObjectName.value)||""));
-      let score=0;
-      for(const k of keywords) if(hay.includes(k)) score+=3;
-      if(clean(p.title).includes(raw.toLowerCase())) score+=8;
-      // Wikimedia Commons hosts free content; keep a visible license value when available.
-      if(license) score+=1;
-      return {p,ii,md,license,score};
-    }).sort((a,b)=>b.score-a.score);
-    const c=candidates[0];
-    if(!c) throw new Error("geen passende Commons-foto");
-    const result={
-      url:c.ii.thumburl,
-      source:c.ii.descriptionurl||"",
-      artist:(c.md.Artist&&c.md.Artist.value)||"",
-      license:c.license||"Wikimedia Commons",
-      title:(c.p.title||"").replace(/^File:/,"")
+    const page=Object.values((data.query&&data.query.pages)||{})[0];
+    if(!page || !page.thumbnail || !page.thumbnail.source) throw new Error("geen bronfoto");
+    let result={
+      url:page.thumbnail.source,
+      source:r.sourceUrl||"",
+      license:"Vrije bronfoto via Wikibooks",
+      artist:"",
+      fileTitle:page.pageimage||""
     };
+
+    // Haal, indien beschikbaar, auteur en licentie van precies dit bronbestand op.
+    if(page.pageimage){
+      try{
+        const fi="https://en.wikibooks.org/w/api.php?action=query&titles="+encodeURIComponent("File:"+page.pageimage)+
+          "&prop=imageinfo&iiprop=url|extmetadata&format=json&origin=*";
+        const fd=await fetch(fi,{cache:"force-cache"}).then(x=>x.json());
+        const fp=Object.values((fd.query&&fd.query.pages)||{})[0];
+        const ii=fp&&fp.imageinfo&&fp.imageinfo[0];
+        const md=(ii&&ii.extmetadata)||{};
+        if(ii&&ii.descriptionurl) result.source=ii.descriptionurl;
+        if(md.LicenseShortName&&md.LicenseShortName.value) result.license=md.LicenseShortName.value;
+        if(md.Artist&&md.Artist.value) result.artist=md.Artist.value;
+      }catch(e){}
+    }
     photoCache[r.id]=result;
     localStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(photoCache));
     return result;
@@ -174,11 +172,11 @@ async function resolveRecipeImage(r,img,creditEl=null){
   const photo=await fetchCommonsPhoto(r);
   if(photo&&photo.url){
     img.src=photo.url;
-    img.dataset.credit=photo.license||"Wikimedia Commons";
+    img.dataset.credit=photo.license||"lokale WeekMenu-foto";
     img.dataset.source=photo.source||"";
     if(creditEl){
       const who=String(photo.artist||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim();
-      creditEl.innerHTML='Foto: <a href="'+esc(photo.source||"#")+'" target="_blank" rel="noopener">Wikimedia Commons</a>'
+      creditEl.innerHTML='Foto: <a href="'+esc(photo.source||"#")+'" target="_blank" rel="noopener">lokale WeekMenu-foto</a>'
         +(who?' · '+esc(who):'')+' · '+esc(photo.license||"vrije licentie");
     }
   }else if(creditEl){
@@ -192,13 +190,86 @@ function resolveVisibleImages(scope){
   });
 }
 
+
+const RECIPE_CACHE_KEY="weekmenuRecipeSourceCacheV32";
+let sourceCache={};
+try{sourceCache=JSON.parse(localStorage.getItem(RECIPE_CACHE_KEY)||"{}")}catch(e){sourceCache={};}
+
+function cleanSourceText(s){
+  return String(s||"").replace(/\[[0-9]+\]/g,"").replace(/\s+/g," ").trim();
+}
+async function loadSourceRecipe(r){
+  if(!r.sourcePage) return r;
+  if(sourceCache[r.id]){
+    Object.assign(r,sourceCache[r.id]);
+    return r;
+  }
+  const api="https://en.wikibooks.org/w/api.php?action=parse&page="+encodeURIComponent(r.sourcePage)+
+    "&prop=text&format=json&origin=*";
+  try{
+    const data=await fetch(api,{cache:"force-cache"}).then(x=>x.json());
+    const html=data&&data.parse&&data.parse.text&&data.parse.text["*"];
+    if(!html) throw new Error("geen broninhoud");
+    const doc=new DOMParser().parseFromString(html,"text/html");
+
+    const headingByText=needle=>[...doc.querySelectorAll("h2,h3")].find(h=>h.textContent.toLowerCase().includes(needle));
+    const collectLists=(heading, orderedOnly=false)=>{
+      if(!heading) return [];
+      const out=[];
+      let el=heading.nextElementSibling;
+      while(el && !/^H[23]$/.test(el.tagName)){
+        const lists=[];
+        if((el.tagName==="UL"||el.tagName==="OL") && (!orderedOnly||el.tagName==="OL")) lists.push(el);
+        lists.push(...el.querySelectorAll(orderedOnly?"ol":"ul,ol"));
+        for(const list of lists){
+          for(const li of list.children){
+            if(li.tagName==="LI"){
+              const tx=cleanSourceText(li.textContent);
+              if(tx && !out.includes(tx)) out.push(tx);
+            }
+          }
+        }
+        el=el.nextElementSibling;
+      }
+      return out;
+    };
+
+    const ing=collectLists(headingByText("ingredients"));
+    let steps=collectLists(headingByText("procedure"),true);
+    if(!steps.length) steps=collectLists(headingByText("method"),true);
+    if(!steps.length) steps=collectLists(headingByText("directions"),true);
+
+    const servingsText=[...doc.querySelectorAll("table")].map(x=>x.textContent).find(x=>/servings/i.test(x))||"";
+    const sm=servingsText.match(/Servings\s*([0-9–\-]+)/i);
+
+    const loaded={
+      ingredients:ing.length?ing:["Zie bronrecept voor ingrediënten."],
+      steps:steps.length?steps:["Zie bronrecept voor bereidingswijze."],
+      shoppingRaw:ing,
+      servings:sm?sm[1]+" porties":"Bronrecept"
+    };
+    Object.assign(r,loaded);
+    sourceCache[r.id]=loaded;
+    localStorage.setItem(RECIPE_CACHE_KEY,JSON.stringify(sourceCache));
+    return r;
+  }catch(e){
+    return r;
+  }
+}
+
 function aggregateShopping(){
-  const totals=new Map();
-  recipes.filter(r=>selected.has(r.id)).forEach(r=>r.shopping.filter(x=>!isPantryIngredient(x.name)).forEach(x=>{
-    const key=x.name+"|||"+x.unit, q=Number(x.qty), old=totals.get(key)||{name:x.name,qty:0,unit:x.unit};
-    if(Number.isFinite(q))old.qty+=q; totals.set(key,old);
-  }));
-  return [...totals.values()].sort((a,b)=>a.name.localeCompare(b.name,"nl"));
+  const totals=new Map(), raw=[];
+  recipes.filter(r=>selected.has(r.id)).forEach(r=>{
+    if(r.shoppingRaw&&r.shoppingRaw.length){
+      r.shoppingRaw.forEach(x=>raw.push({name:x,qty:"",unit:""}));
+    }else{
+      (r.shopping||[]).filter(x=>!isPantryIngredient(x.name)).forEach(x=>{
+        const key=x.name+"|||"+x.unit, q=Number(x.qty), old=totals.get(key)||{name:x.name,qty:0,unit:x.unit};
+        if(Number.isFinite(q))old.qty+=q; totals.set(key,old);
+      });
+    }
+  });
+  return [...totals.values(),...raw].sort((a,b)=>a.name.localeCompare(b.name,"nl"));
 }
 function renderShoppingMini(){
   updateSelectedCount();
@@ -220,21 +291,32 @@ function renderFavorites(){
   wireCards($("#favoriteGrid"));
   resolveVisibleImages($("#favoriteGrid"));
 }
-function openRecipe(id){
+async function openRecipe(id){
   const r=recipes.find(x=>x.id===id); if(!r)return;
-  $("#dialogImage").src=r.image||"assets/icons/icon-512.png"; $("#dialogImage").alt=r.title; resolveRecipeImage(r,$("#dialogImage"),$("#dialogPhotoCredit")); $("#dialogTitle").textContent=r.title;
-  $("#dialogServings").textContent=r.servings||""; $("#dialogVeg").innerHTML=r.vegetables.map(v=>`<span class="chip">${esc(v)}</span>`).join("");
-  $("#dialogIngredients").innerHTML=r.ingredients.map(x=>`<li>${esc(x)}</li>`).join("");
-  $("#dialogSteps").innerHTML=r.steps.map(x=>`<li>${esc(x)}</li>`).join(""); $("#dialogRecipeLicense").textContent=r.recipeLicense?"Recepttekst: "+r.recipeLicense:"";
+  if(r.sourcePage) await loadSourceRecipe(r);
+  $("#dialogImage").src=r.image||"assets/icons/icon-512.png";
+  $("#dialogImage").alt=r.title;
+  resolveRecipeImage(r,$("#dialogImage"),$("#dialogPhotoCredit"));
+  $("#dialogTitle").textContent=r.title;
+  $("#dialogServings").textContent=r.servings||"";
+  $("#dialogVeg").innerHTML=(r.vegetables||[]).map(v=>`<span class="chip">${esc(v)}</span>`).join("");
+  $("#dialogIngredients").innerHTML=(r.ingredients||[]).map(x=>`<li>${esc(x)}</li>`).join("");
+  $("#dialogSteps").innerHTML=(r.steps||[]).map(x=>`<li>${esc(x)}</li>`).join("");
+  $("#dialogRecipeLicense").innerHTML=(r.sourceUrl?`Bron: <a href="${esc(r.sourceUrl)}" target="_blank" rel="noopener">Wikibooks Cookbook</a> · `:"")
+    +esc(r.recipeLicense||"");
   const cb=$("#dialogSelect"); cb.dataset.id=id; cb.checked=selected.has(id);
   const fav=$("#dialogFavorite"); fav.dataset.id=id; fav.textContent=favorites.has(id)?"♥":"♡"; fav.classList.toggle("active",favorites.has(id));
   $("#recipeDialog").showModal();
+}async function toggleSelected(id,on){
+  const r=recipes.find(x=>x.id===id);
+  if(on && r && r.sourcePage && !(r.shoppingRaw&&r.shoppingRaw.length)) await loadSourceRecipe(r);
+  on?selected.add(id):selected.delete(id);
+  persist();renderAll();
 }
-function toggleSelected(id,on){on?selected.add(id):selected.delete(id);persist();renderAll();}
 function toggleFavorite(id){favorites.has(id)?favorites.delete(id):favorites.add(id);persist();}
 function persist(){
-  localStorage.setItem("weekmenuSelectedV30",JSON.stringify([...selected]));
-  localStorage.setItem("weekmenuFavoritesV30",JSON.stringify([...favorites]));
+  localStorage.setItem("weekmenuSelectedV32",JSON.stringify([...selected]));
+  localStorage.setItem("weekmenuFavoritesV32",JSON.stringify([...favorites]));
   updateSelectedCount();
 }
 function updateSelectedCount(){$("#selectedCount").textContent=selected.size;}

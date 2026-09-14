@@ -1,15 +1,16 @@
-# WeekMenu v3.0 — open recepten + vrije foto's
+# WeekMenu v3.2 — 80 bestaande bronrecepten
 
-Deze versie vervangt alle 80 eerdere hoofdgerechten.
+Deze versie gebruikt voor de 80 hoofdgerechten uitsluitend bestaande recepten uit
+**Wikibooks Cookbook – Recipes with images**.
 
-- 80 nieuwe hoofdgerechten, recepttekst speciaal voor WeekMenu geschreven.
-- De 80 nieuwe receptteksten zijn vrijgegeven onder CC0 1.0.
-- Geen recepten of foto's van Albert Heijn/Jumbo meer bij de hoofdgerechten.
-- Per hoofdgerecht staat een specifieke `imageSearch`-term.
-- De app zoekt daarmee op Wikimedia Commons naar een passende vrij gelicenseerde foto.
-- Bij het recept toont de app de Commons-bron, maker en licentie.
-- De 80 oorspronkelijke salades blijven ongewijzigd.
-- Boodschappenlijst, filters, favorieten en PWA blijven werken.
+Belangrijk:
+- De 80 recepten zijn niet door WeekMenu geschreven.
+- Bij openen haalt de app ingrediënten en bereidingswijze rechtstreeks op uit het betreffende Wikibooks-recept.
+- Voor elk gerecht gebruikt de app uitsluitend de hoofdafbeelding van exact diezelfde bronpagina.
+- Er vindt géén generieke Wikimedia/Commons-beeldzoekopdracht plaats.
+- Bron en receptlicentie (CC BY-SA) worden in het receptscherm vermeld.
+- Waar de bronmetadata dit levert, worden ook auteur en licentie van de specifieke foto weergegeven.
+- De bestaande 80 salades blijven behouden.
 
-Let op: de hoofdgerechtfoto's worden bij de eerste keer openen online uit Wikimedia Commons opgehaald
-en daarna in de browsercache/localStorage onthouden.
+Omdat de recepten en bronfoto's rechtstreeks uit de open bron worden geladen, blijft de
+inhoud gekoppeld aan het originele recept en kan er geen verkeerde generieke foto aan een gerecht worden gekoppeld.
