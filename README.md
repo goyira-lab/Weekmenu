@@ -1,16 +1,7 @@
-# WeekMenu v3.2 — 80 bestaande bronrecepten
+# WeekMenu v3.5 — Nederlandse bronrecepten (tussenversie)
 
-Deze versie gebruikt voor de 80 hoofdgerechten uitsluitend bestaande recepten uit
-**Wikibooks Cookbook – Recipes with images**.
+80 Nederlandse of vertrouwde gerechten en onderdelen uit de Nederlandstalige Wikibooks-receptenindex, plus 80 bestaande salades. Receptteksten worden niet verzonnen: de website probeert ingrediënten en bereidingsstappen op de oorspronkelijke Wikibooks-pagina te laden. Selectie voor de boodschappenlijst is alleen mogelijk als de broninhoud daadwerkelijk geladen is. Foto’s komen uitsluitend van dezelfde bronpagina en worden alleen getoond als licentiemetadata kan worden opgehaald. Ontbreekt een foto of broninhoud, dan wordt niets verzonnen.
 
-Belangrijk:
-- De 80 recepten zijn niet door WeekMenu geschreven.
-- Bij openen haalt de app ingrediënten en bereidingswijze rechtstreeks op uit het betreffende Wikibooks-recept.
-- Voor elk gerecht gebruikt de app uitsluitend de hoofdafbeelding van exact diezelfde bronpagina.
-- Er vindt géén generieke Wikimedia/Commons-beeldzoekopdracht plaats.
-- Bron en receptlicentie (CC BY-SA) worden in het receptscherm vermeld.
-- Waar de bronmetadata dit levert, worden ook auteur en licentie van de specifieke foto weergegeven.
-- De bestaande 80 salades blijven behouden.
+**Beperkingen:** Niet alle 80 pagina-URL’s zijn afzonderlijk gecontroleerd; een deel van de selectie bestaat uit losse AGV-onderdelen in plaats van volledige maaltijden. Er zijn geen 80 lokaal opgeslagen, afzonderlijk gecontroleerde foto’s. De website vereist internet voor hoofdrecepten en hun foto’s. Dit is niet de volledig gevraagde offline/complete versie. Bestaande saladefoto’s blijven op GitHub staan.
 
-Omdat de recepten en bronfoto's rechtstreeks uit de open bron worden geladen, blijft de
-inhoud gekoppeld aan het originele recept en kan er geen verkeerde generieke foto aan een gerecht worden gekoppeld.
+Tekstlicentie: zie https://nl.wikibooks.org/wiki/Wikibooks:Auteursrechten; afzonderlijke fotolicenties: de betreffende bestandsbeschrijvingspagina.

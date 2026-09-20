@@ -1,6 +1,6 @@
-const APP_VERSION="3.2";
-let recipes=[], selected=new Set(JSON.parse(localStorage.getItem("weekmenuSelectedV32")||"[]"));
-let favorites=new Set(JSON.parse(localStorage.getItem("weekmenuFavoritesV32")||"[]"));
+const APP_VERSION="3.4";
+let recipes=[], selected=new Set(JSON.parse(localStorage.getItem("weekmenuSelectedV34")||"[]"));
+let favorites=new Set(JSON.parse(localStorage.getItem("weekmenuFavoritesV34")||"[]"));
 let currentView="recipes", displayMode="grid";
 
 const $=s=>document.querySelector(s);
@@ -122,7 +122,7 @@ function isPantryIngredient(name){
   return PANTRY_PATTERNS.some(rx=>rx.test(String(name||"")));
 }
 
-const PHOTO_CACHE_KEY="weekmenuPhotoCacheV32";
+const PHOTO_CACHE_KEY="weekmenuPhotoCacheV35";
 let photoCache={};
 try{photoCache=JSON.parse(localStorage.getItem(PHOTO_CACHE_KEY)||"{}")}catch(e){photoCache={};}
 async function fetchCommonsPhoto(r){
@@ -130,7 +130,7 @@ async function fetchCommonsPhoto(r){
   if(!r.sourcePage) return null;
   if(photoCache[r.id]) return photoCache[r.id];
 
-  const api="https://en.wikibooks.org/w/api.php?action=query&titles="+encodeURIComponent(r.sourcePage)+
+  const api="https://nl.wikibooks.org/w/api.php?action=query&titles="+encodeURIComponent(r.sourcePage)+
     "&prop=pageimages&piprop=thumbnail|name|original&pithumbsize=1200&format=json&origin=*";
   try{
     const data=await fetch(api,{cache:"force-cache"}).then(x=>x.json());
@@ -139,7 +139,7 @@ async function fetchCommonsPhoto(r){
     let result={
       url:page.thumbnail.source,
       source:r.sourceUrl||"",
-      license:"Vrije bronfoto via Wikibooks",
+      license:"Licentie: controleer bronbestand",
       artist:"",
       fileTitle:page.pageimage||""
     };
@@ -147,7 +147,7 @@ async function fetchCommonsPhoto(r){
     // Haal, indien beschikbaar, auteur en licentie van precies dit bronbestand op.
     if(page.pageimage){
       try{
-        const fi="https://en.wikibooks.org/w/api.php?action=query&titles="+encodeURIComponent("File:"+page.pageimage)+
+        const fi="https://nl.wikibooks.org/w/api.php?action=query&titles="+encodeURIComponent("File:"+page.pageimage)+
           "&prop=imageinfo&iiprop=url|extmetadata&format=json&origin=*";
         const fd=await fetch(fi,{cache:"force-cache"}).then(x=>x.json());
         const fp=Object.values((fd.query&&fd.query.pages)||{})[0];
@@ -158,6 +158,7 @@ async function fetchCommonsPhoto(r){
         if(md.Artist&&md.Artist.value) result.artist=md.Artist.value;
       }catch(e){}
     }
+    if(result.license==="Licentie: controleer bronbestand")return null;
     photoCache[r.id]=result;
     localStorage.setItem(PHOTO_CACHE_KEY,JSON.stringify(photoCache));
     return result;
@@ -172,15 +173,15 @@ async function resolveRecipeImage(r,img,creditEl=null){
   const photo=await fetchCommonsPhoto(r);
   if(photo&&photo.url){
     img.src=photo.url;
-    img.dataset.credit=photo.license||"lokale WeekMenu-foto";
+    img.dataset.credit=photo.license||"bronfoto";
     img.dataset.source=photo.source||"";
     if(creditEl){
       const who=String(photo.artist||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim();
-      creditEl.innerHTML='Foto: <a href="'+esc(photo.source||"#")+'" target="_blank" rel="noopener">lokale WeekMenu-foto</a>'
+      creditEl.innerHTML='Foto: <a href="'+esc(photo.source||"#")+'" target="_blank" rel="noopener">bronfoto</a>'
         +(who?' · '+esc(who):'')+' · '+esc(photo.license||"vrije licentie");
     }
   }else if(creditEl){
-    creditEl.textContent="Geen passende Commons-foto gevonden.";
+    creditEl.textContent="Geen foto beschikbaar op de bronpagina.";
   }
 }
 function resolveVisibleImages(scope){
@@ -191,7 +192,7 @@ function resolveVisibleImages(scope){
 }
 
 
-const RECIPE_CACHE_KEY="weekmenuRecipeSourceCacheV32";
+const RECIPE_CACHE_KEY="weekmenuRecipeSourceCacheV35";
 let sourceCache={};
 try{sourceCache=JSON.parse(localStorage.getItem(RECIPE_CACHE_KEY)||"{}")}catch(e){sourceCache={};}
 
@@ -204,7 +205,7 @@ async function loadSourceRecipe(r){
     Object.assign(r,sourceCache[r.id]);
     return r;
   }
-  const api="https://en.wikibooks.org/w/api.php?action=parse&page="+encodeURIComponent(r.sourcePage)+
+  const api="https://nl.wikibooks.org/w/api.php?action=parse&page="+encodeURIComponent(r.sourcePage)+
     "&prop=text&format=json&origin=*";
   try{
     const data=await fetch(api,{cache:"force-cache"}).then(x=>x.json());
@@ -212,47 +213,51 @@ async function loadSourceRecipe(r){
     if(!html) throw new Error("geen broninhoud");
     const doc=new DOMParser().parseFromString(html,"text/html");
 
-    const headingByText=needle=>[...doc.querySelectorAll("h2,h3")].find(h=>h.textContent.toLowerCase().includes(needle));
+    const headingByText=needle=>[...doc.querySelectorAll("h2,h3,h4")].find(h=>h.textContent.toLowerCase().includes(needle));
     const collectLists=(heading, orderedOnly=false)=>{
-      if(!heading) return [];
+      if(!heading)return [];
       const out=[];
       let el=heading.nextElementSibling;
-      while(el && !/^H[23]$/.test(el.tagName)){
+      while(el && !/^H[234]$/.test(el.tagName)){
         const lists=[];
-        if((el.tagName==="UL"||el.tagName==="OL") && (!orderedOnly||el.tagName==="OL")) lists.push(el);
+        if(["UL","OL"].includes(el.tagName)&&(!orderedOnly||el.tagName==="OL"))lists.push(el);
         lists.push(...el.querySelectorAll(orderedOnly?"ol":"ul,ol"));
-        for(const list of lists){
-          for(const li of list.children){
-            if(li.tagName==="LI"){
-              const tx=cleanSourceText(li.textContent);
-              if(tx && !out.includes(tx)) out.push(tx);
-            }
-          }
+        for(const list of lists)for(const li of list.children){
+          if(li.tagName!=="LI")continue;
+          const tx=cleanSourceText(li.textContent);
+          if(tx&&!out.includes(tx))out.push(tx);
         }
         el=el.nextElementSibling;
       }
       return out;
     };
-
-    const ing=collectLists(headingByText("ingredients"));
-    let steps=collectLists(headingByText("procedure"),true);
-    if(!steps.length) steps=collectLists(headingByText("method"),true);
-    if(!steps.length) steps=collectLists(headingByText("directions"),true);
-
+    let ing=collectLists(headingByText("ingrediënten")||headingByText("ingredients"));
+    if(!ing.length)ing=collectLists(headingByText("ingrediënt")||headingByText("ingredient"));
+    let steps=collectLists(headingByText("bereidingswijze")||headingByText("bereiding")||headingByText("procedure"),true);
+    if(!steps.length)steps=collectLists(headingByText("werkwijze")||headingByText("method"),true);
+    if(!steps.length)steps=collectLists(headingByText("instructies")||headingByText("directions"),true);
+    if(!steps.length)steps=collectLists(headingByText("bereiding")||headingByText("preparation"),true);
+    if(!steps.length)steps=collectLists(headingByText("stappen")||headingByText("instructions"),true);
+    if(!steps.length){
+      const h=headingByText("bereidingswijze")||headingByText("bereiding")||headingByText("procedure")||headingByText("werkwijze")||headingByText("method")||headingByText("instructies")||headingByText("directions")||headingByText("bereiding")||headingByText("preparation");
+      if(h){let el=h.nextElementSibling;while(el&&!/^H[234]$/.test(el.tagName)){if(el.tagName==="P"&&cleanSourceText(el.textContent))steps.push(cleanSourceText(el.textContent));el=el.nextElementSibling;}}
+    }
     const servingsText=[...doc.querySelectorAll("table")].map(x=>x.textContent).find(x=>/servings/i.test(x))||"";
     const sm=servingsText.match(/Servings\s*([0-9–\-]+)/i);
 
+    if(!ing.length || !steps.length)throw new Error("Bron bevat geen automatisch uitleesbare ingrediënten of stappen");
     const loaded={
       ingredients:ing.length?ing:["Zie bronrecept voor ingrediënten."],
       steps:steps.length?steps:["Zie bronrecept voor bereidingswijze."],
       shoppingRaw:ing,
-      servings:sm?sm[1]+" porties":"Bronrecept"
+      servings:sm?sm[1]+" porties":"Volgens bron"
     };
     Object.assign(r,loaded);
     sourceCache[r.id]=loaded;
     localStorage.setItem(RECIPE_CACHE_KEY,JSON.stringify(sourceCache));
     return r;
   }catch(e){
+    r.sourceLoadError=true;
     return r;
   }
 }
@@ -275,14 +280,14 @@ function renderShoppingMini(){
   updateSelectedCount();
   const arr=aggregateShopping(), empty=arr.length===0;
   $("#shoppingEmpty").hidden=!empty; $("#shoppingList").hidden=empty;
-  $("#shoppingList").innerHTML=arr.slice(0,8).map(x=>`<div class="mini-row"><span>${esc(x.name)}</span><span class="qty">${fmt(x.qty)}</span><span class="unit">${esc(x.unit)}</span></div>`).join("");
+  $("#shoppingList").innerHTML=arr.slice(0,8).map(x=>`<div class="mini-row"><span>${esc(x.name)}</span><span class="qty">${x.qty===""?"":fmt(x.qty)}</span><span class="unit">${esc(x.unit)}</span></div>`).join("");
   $("#shoppingFull").textContent=arr.length>8?`Bekijk volledige lijst (${arr.length})`:"Bekijk volledige lijst";
 }
 function renderShoppingPage(){
   const arr=aggregateShopping(), empty=arr.length===0;
   $("#shoppingPageEmpty").hidden=!empty; $("#shoppingPageList").hidden=empty;
   $("#shoppingPageList").innerHTML=empty?"":`<div class="shop-row"><span>Ingrediënt</span><span class="qty">Totaal</span><span class="unit">Eenheid</span></div>`+
-    arr.map(x=>`<div class="shop-row"><span>${esc(x.name)}</span><span class="qty">${fmt(x.qty)}</span><span class="unit">${esc(x.unit)}</span></div>`).join("");
+    arr.map(x=>`<div class="shop-row"><span>${esc(x.name)}</span><span class="qty">${x.qty===""?"":fmt(x.qty)}</span><span class="unit">${esc(x.unit)}</span></div>`).join("");
 }
 function renderFavorites(){
   const rs=recipes.filter(r=>favorites.has(r.id));
@@ -293,7 +298,9 @@ function renderFavorites(){
 }
 async function openRecipe(id){
   const r=recipes.find(x=>x.id===id); if(!r)return;
+
   if(r.sourcePage) await loadSourceRecipe(r);
+  if(r.sourceLoadError){window.open(r.sourceUrl,"_blank","noopener,noreferrer");return;}
   $("#dialogImage").src=r.image||"assets/icons/icon-512.png";
   $("#dialogImage").alt=r.title;
   resolveRecipeImage(r,$("#dialogImage"),$("#dialogPhotoCredit"));
@@ -302,21 +309,23 @@ async function openRecipe(id){
   $("#dialogVeg").innerHTML=(r.vegetables||[]).map(v=>`<span class="chip">${esc(v)}</span>`).join("");
   $("#dialogIngredients").innerHTML=(r.ingredients||[]).map(x=>`<li>${esc(x)}</li>`).join("");
   $("#dialogSteps").innerHTML=(r.steps||[]).map(x=>`<li>${esc(x)}</li>`).join("");
-  $("#dialogRecipeLicense").innerHTML=(r.sourceUrl?`Bron: <a href="${esc(r.sourceUrl)}" target="_blank" rel="noopener">Wikibooks Cookbook</a> · `:"")
+  $("#dialogRecipeLicense").innerHTML=(r.sourceUrl?`Bron: <a href="${esc(r.sourceUrl)}" target="_blank" rel="noopener">Wikibooks Kookboek</a> · `:"")
     +esc(r.recipeLicense||"");
   const cb=$("#dialogSelect"); cb.dataset.id=id; cb.checked=selected.has(id);
   const fav=$("#dialogFavorite"); fav.dataset.id=id; fav.textContent=favorites.has(id)?"♥":"♡"; fav.classList.toggle("active",favorites.has(id));
   $("#recipeDialog").showModal();
 }async function toggleSelected(id,on){
   const r=recipes.find(x=>x.id===id);
+
   if(on && r && r.sourcePage && !(r.shoppingRaw&&r.shoppingRaw.length)) await loadSourceRecipe(r);
+  if(on && r && r.sourceLoadError){alert("Dit bronrecept kon niet worden ingelezen. Het is niet aan de boodschappenlijst toegevoegd.");return;}
   on?selected.add(id):selected.delete(id);
   persist();renderAll();
 }
 function toggleFavorite(id){favorites.has(id)?favorites.delete(id):favorites.add(id);persist();}
 function persist(){
-  localStorage.setItem("weekmenuSelectedV32",JSON.stringify([...selected]));
-  localStorage.setItem("weekmenuFavoritesV32",JSON.stringify([...favorites]));
+  localStorage.setItem("weekmenuSelectedV34",JSON.stringify([...selected]));
+  localStorage.setItem("weekmenuFavoritesV34",JSON.stringify([...favorites]));
   updateSelectedCount();
 }
 function updateSelectedCount(){$("#selectedCount").textContent=selected.size;}
