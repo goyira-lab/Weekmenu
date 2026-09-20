@@ -1,6 +1,6 @@
-const APP_VERSION="3.3";
-let recipes=[], selected=new Set(JSON.parse(localStorage.getItem("weekmenuSelectedV33")||"[]"));
-let favorites=new Set(JSON.parse(localStorage.getItem("weekmenuFavoritesV33")||"[]"));
+const APP_VERSION="3.2";
+let recipes=[], selected=new Set(JSON.parse(localStorage.getItem("weekmenuSelectedV32")||"[]"));
+let favorites=new Set(JSON.parse(localStorage.getItem("weekmenuFavoritesV32")||"[]"));
 let currentView="recipes", displayMode="grid";
 
 const $=s=>document.querySelector(s);
@@ -87,9 +87,9 @@ function cardHTML(r){
         <span>🍴 ${servingText(r)}</span>
       </div>
       <div class="select-row">
-        <label><input type="checkbox" data-select="${r.id}" ${sel?"checked":""} ${r.discoveryUrl?"disabled title='Nog geen gecontroleerd bronrecept'":""}> ${r.discoveryUrl?"Recept nog niet gekoppeld":"Voeg toe aan boodschappen"}</label>
+        <label><input type="checkbox" data-select="${r.id}" ${sel?"checked":""}> Voeg toe aan boodschappen</label>
       </div>
-      <button class="recipe-button" data-open="${r.id}">${r.discoveryUrl?"Zoek bestaand recept ↗":"Bekijk recept →"}</button>
+      <button class="recipe-button" data-open="${r.id}">Bekijk recept →</button>
     </div>
   </article>`;
 }
@@ -122,7 +122,7 @@ function isPantryIngredient(name){
   return PANTRY_PATTERNS.some(rx=>rx.test(String(name||"")));
 }
 
-const PHOTO_CACHE_KEY="weekmenuPhotoCacheV33";
+const PHOTO_CACHE_KEY="weekmenuPhotoCacheV32";
 let photoCache={};
 try{photoCache=JSON.parse(localStorage.getItem(PHOTO_CACHE_KEY)||"{}")}catch(e){photoCache={};}
 async function fetchCommonsPhoto(r){
@@ -293,7 +293,6 @@ function renderFavorites(){
 }
 async function openRecipe(id){
   const r=recipes.find(x=>x.id===id); if(!r)return;
-  if(r.discoveryUrl){window.open(r.discoveryUrl,"_blank","noopener,noreferrer");return;}
   if(r.sourcePage) await loadSourceRecipe(r);
   $("#dialogImage").src=r.image||"assets/icons/icon-512.png";
   $("#dialogImage").alt=r.title;
@@ -310,15 +309,14 @@ async function openRecipe(id){
   $("#recipeDialog").showModal();
 }async function toggleSelected(id,on){
   const r=recipes.find(x=>x.id===id);
-  if(r && r.discoveryUrl) return;
   if(on && r && r.sourcePage && !(r.shoppingRaw&&r.shoppingRaw.length)) await loadSourceRecipe(r);
   on?selected.add(id):selected.delete(id);
   persist();renderAll();
 }
 function toggleFavorite(id){favorites.has(id)?favorites.delete(id):favorites.add(id);persist();}
 function persist(){
-  localStorage.setItem("weekmenuSelectedV33",JSON.stringify([...selected]));
-  localStorage.setItem("weekmenuFavoritesV33",JSON.stringify([...favorites]));
+  localStorage.setItem("weekmenuSelectedV32",JSON.stringify([...selected]));
+  localStorage.setItem("weekmenuFavoritesV32",JSON.stringify([...favorites]));
   updateSelectedCount();
 }
 function updateSelectedCount(){$("#selectedCount").textContent=selected.size;}
