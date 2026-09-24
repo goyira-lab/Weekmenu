@@ -122,7 +122,7 @@ function isPantryIngredient(name){
   return PANTRY_PATTERNS.some(rx=>rx.test(String(name||"")));
 }
 
-const PHOTO_CACHE_KEY="weekmenuPhotoCacheV37";
+const PHOTO_CACHE_KEY="weekmenuPhotoCacheV38";
 let photoCache={};
 try{photoCache=JSON.parse(localStorage.getItem(PHOTO_CACHE_KEY)||"{}")}catch(e){photoCache={};}
 async function fetchCommonsPhoto(r){
@@ -192,7 +192,7 @@ function resolveVisibleImages(scope){
 }
 
 
-const RECIPE_CACHE_KEY="weekmenuRecipeSourceCacheV37";
+const RECIPE_CACHE_KEY="weekmenuRecipeSourceCacheV38";
 let sourceCache={};
 try{sourceCache=JSON.parse(localStorage.getItem(RECIPE_CACHE_KEY)||"{}")}catch(e){sourceCache={};}
 
